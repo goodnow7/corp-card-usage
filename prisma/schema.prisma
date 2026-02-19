@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String      @id @default(cuid())
+  username   String      @unique
+  password   String
+  createdAt  DateTime    @default(now())
+  cardUsages CardUsage[]
+  categories Category[]
+}
+
+model Category {
+  id        String      @id @default(cuid())
+  name      String
+  createdAt DateTime    @default(now())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  cardUsages CardUsage[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model CardUsage {
+  id         String    @id @default(cuid())
+  usedAt     DateTime
+  merchant   String
+  amount     Int?
+  purpose    String
+  memo       String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  @@index([userId])
+  @@index([userId, usedAt])
+}
