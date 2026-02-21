@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -9,10 +9,19 @@ export default function LoginPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  useEffect(() => {
+    const savedUsername = localStorage.getItem("remember_username");
+    if (savedUsername) {
+      setUsername(savedUsername);
+      setRememberMe(true);
+    }
+  }, []);
+
+  async function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -28,6 +37,16 @@ export default function LoginPage() {
     if (result?.error) {
       setError("아이디 또는 비밀번호가 올바르지 않습니다.");
       return;
+    }
+
+    if (rememberMe) {
+      localStorage.setItem("remember_username", username);
+      localStorage.setItem("last_activity", new Date().toISOString());
+      sessionStorage.removeItem("session_active");
+    } else {
+      localStorage.removeItem("remember_username");
+      localStorage.removeItem("last_activity");
+      sessionStorage.setItem("session_active", "true");
     }
 
     router.push("/");
@@ -51,6 +70,7 @@ export default function LoginPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
+              autoComplete="username"
               className="w-full bg-[#0f1117] border border-[#2a2d3a] text-white rounded-lg px-3 py-2 focus:outline-none focus:border-[#14b8a6] transition-colors placeholder-[#64748b]"
             />
           </div>
@@ -64,8 +84,21 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              autoComplete="new-password"
               className="w-full bg-[#0f1117] border border-[#2a2d3a] text-white rounded-lg px-3 py-2 focus:outline-none focus:border-[#14b8a6] transition-colors placeholder-[#64748b]"
             />
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              id="rememberMe"
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="w-4 h-4 rounded border-[#2a2d3a] bg-[#0f1117] accent-[#14b8a6] cursor-pointer"
+            />
+            <label htmlFor="rememberMe" className="text-sm text-[#e2e8f0] cursor-pointer">
+              로그인 유지
+            </label>
           </div>
           <button
             type="submit"

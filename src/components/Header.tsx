@@ -36,7 +36,11 @@ export default function Header() {
               {session.user.name}
             </span>
             <button
-              onClick={() => signOut({ callbackUrl: "/login" })}
+              onClick={() => {
+                localStorage.removeItem("last_activity");
+                sessionStorage.removeItem("session_active");
+                signOut({ callbackUrl: "/login" });
+              }}
               className="text-sm text-gray-400 hover:text-[#14b8a6] transition-colors whitespace-nowrap"
             >
               로그아웃
