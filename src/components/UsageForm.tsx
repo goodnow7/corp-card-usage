@@ -38,6 +38,7 @@ export default function UsageForm({ initialData }: UsageFormProps) {
   const router = useRouter();
   const isEdit = !!initialData;
   const dateRef = useRef<HTMLInputElement>(null);
+  const purposeRef = useRef<HTMLInputElement>(null);
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [form, setForm] = useState({
@@ -59,6 +60,14 @@ export default function UsageForm({ initialData }: UsageFormProps) {
       .then((res) => res.json())
       .then(setCategories)
       .catch(() => {});
+  }, []);
+
+  // 폼 진입 시 용도/사유 필드에 포커스 → lang="ko" 재적용으로 한글 자판 복원
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      purposeRef.current?.focus();
+    }, 50);
+    return () => clearTimeout(timer);
   }, []);
 
   function handleChange(
@@ -210,6 +219,7 @@ export default function UsageForm({ initialData }: UsageFormProps) {
           용도/사유 <span className="text-[#f87171]">*</span>
         </label>
         <input
+          ref={purposeRef}
           id="purpose"
           name="purpose"
           type="text"
