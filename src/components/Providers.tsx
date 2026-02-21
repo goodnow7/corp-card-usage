@@ -2,14 +2,19 @@
 
 import { SessionProvider, useSession, signOut } from "next-auth/react";
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 const INACTIVITY_DAYS = 7;
+// 로그인/회원가입 페이지에서는 세션 가드를 실행하지 않음
+const AUTH_PATHS = ["/login", "/register"];
 
 function SessionGuard({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (status !== "authenticated") return;
+    if (AUTH_PATHS.includes(pathname)) return;
 
     const rememberUsername = localStorage.getItem("remember_username");
 
@@ -35,7 +40,7 @@ function SessionGuard({ children }: { children: React.ReactNode }) {
         return;
       }
     }
-  }, [status]);
+  }, [status, pathname]);
 
   return <>{children}</>;
 }
