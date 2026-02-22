@@ -56,8 +56,7 @@ export default function LoginPage() {
       localStorage.removeItem("last_activity");
       sessionStorage.setItem("session_active", "true");
     }
-
-    router.push("/");
+    // 세션이 확정되면 useEffect에서 이동 처리
   }
 
   return (
